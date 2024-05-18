@@ -6,10 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Классификация строительных ресурсов</title>
     <style>
-        .form{
+        .form {
             width: 50%;
             margin: auto;
         }
+
         table {
             width: 50%;
             margin: auto;
@@ -28,26 +29,36 @@
 <body>
     <h1>Классификация строительных ресурсов</h1>
     <div class="form">
+        <p>Ввод текста</p>
         <input type="text" id="textInput" placeholder="Enter text">
+        <input type="number" id="numberInput" value="5">
         <button onclick="sendTextToAPI()">Отправить</button>
     </div>
     <table id="dataTable">
         <thead>
             <tr>
+                <th>Код</th>
                 <th>Название</th>
+                <th>Ед. изм.</th>
                 <th>Вероятность</th>
             </tr>
         </thead>
         <tbody id="dataBody">
         </tbody>
     </table>
+    <div class="form">
+        <p>Загрузка файла</p>
+        <input type="file" id="fileInput">
+        <button onclick="uploadFile()">Загрузить</button>
+    </div>
 
     <script>
         function sendTextToAPI() {
             let text = document.getElementById('textInput').value;
+            let num = document.getElementById('numberInput').value;
             fetch('http://127.0.0.1:8000/api/v1/ksr', {
                 method: 'POST',
-                body: JSON.stringify({ text: text, num: 5 }),
+                body: JSON.stringify({ text: text, num: num }),
                 headers: {
                     'Content-Type': 'application/json'
                 }
@@ -64,13 +75,34 @@
         function displayData(data) {
             let tableBody = document.getElementById('dataBody');
             tableBody.innerHTML = '';
-            for (const key in data.predicted) {
-                if (data.predicted.hasOwnProperty(key)) {
-                    const value = data.predicted[key];
-                    let row = `<tr><td>${key}</td><td>${value}</td></tr>`;
-                    tableBody.innerHTML += row;
-                }
-            };
+            data.predicted.forEach(item => {
+                let row = `<tr><td>${item[0]}</td><td>${item[1]}</td><td>${item[2]}</td><td>${item[3]}</td></tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('http://127.0.0.1:8000/api/v1/ksr/upload', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'data.csv';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                })
+                .catch(error => console.error('Error:', error));
         }
     </script>
 </body>
