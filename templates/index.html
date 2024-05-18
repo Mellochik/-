@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Классификация строительных ресурсов</title>
+    <style>
+        .form{
+            width: 50%;
+            margin: auto;
+        }
+        table {
+            width: 50%;
+            margin: auto;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Классификация строительных ресурсов</h1>
+    <div class="form">
+        <input type="text" id="textInput" placeholder="Enter text">
+        <button onclick="sendTextToAPI()">Отправить</button>
+    </div>
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>Название</th>
+                <th>Вероятность</th>
+            </tr>
+        </thead>
+        <tbody id="dataBody">
+        </tbody>
+    </table>
+
+    <script>
+        function sendTextToAPI() {
+            let text = document.getElementById('textInput').value;
+            fetch('http://127.0.0.1:8000/api/v1/ksr', {
+                method: 'POST',
+                body: JSON.stringify({ text: text, num: 5 }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    displayData(data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function displayData(data) {
+            let tableBody = document.getElementById('dataBody');
+            tableBody.innerHTML = '';
+            for (const key in data.predicted) {
+                if (data.predicted.hasOwnProperty(key)) {
+                    const value = data.predicted[key];
+                    let row = `<tr><td>${key}</td><td>${value}</td></tr>`;
+                    tableBody.innerHTML += row;
+                }
+            };
+        }
+    </script>
+</body>
+
+</html>
