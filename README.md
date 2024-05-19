@@ -27,8 +27,8 @@ API принимает текст или файл csv с набором данн
 | Код | Плохое название | КСР |
 
 WEB интерфейс
-![](!img/image1.png)
-![](!img/image2.png)
+![](img/image1.png)
+![](img/image2.png)
 
 ---
 
